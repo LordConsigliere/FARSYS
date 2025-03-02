@@ -1,0 +1,53 @@
+{
+  "expo": {
+    "name": "FARSys",
+    "slug": "appointment_app",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/images/Fapsyslogo.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "newArchEnabled": true,
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.FAppSys.appointment-app",
+      "buildNumber": "1"
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/images/Fapsyslogo.png",
+        "backgroundColor": "#ffffff"
+      },
+      "package": "com.FAppSys.appointment_app"
+    },
+
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/Fapsyslogo.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/images/Fapsyslogo.png",
+          "imageWidth": 200,
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
+        }
+      ]
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "4de0b518-95f1-4f2f-9cb4-89543ebd1084"
+      }
+    }
+  }
+}
