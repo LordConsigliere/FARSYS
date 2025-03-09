@@ -50,10 +50,24 @@ const TeacherAppointment = () => {
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState(null);
   const [DeclineAppointment, setDeclineAppointment] = useState(null);
- 
   const [confirmationVisible, setConfirmationVisible] = useState(false);
-
   const [remarkText, setRemarkText] = useState("");
+
+  const getAppointmentCountByStatus = (status) => {
+    if (!appointments || appointments.length === 0) return 0;
+
+    // For pending, we need to ensure appointment date is not in the past
+    if (status === "Pending") {
+      const today = new Date().toISOString().split("T")[0];
+      return appointments.filter(
+        (appointment) =>
+          appointment.status === "Pending" && appointment.date >= today
+      ).length;
+    }
+
+    return appointments.filter((appointment) => appointment.status === status)
+      .length;
+  };
 
   const [currentTeacherId, setCurrentTeacherId] = useState(null);
   useEffect(() => {
@@ -270,27 +284,27 @@ const TeacherAppointment = () => {
     // Initialize metrics object
     const metrics = {};
     const totalStart = performance.now(); // Start measuring total latency
-  
+
     try {
       // Start measuring Firebase update latency
       const firebaseStart = performance.now();
-  
+
       const appointmentRef = ref(database, `appointments/${appointment.id}`);
       const updates = {
         status: newStatus,
         remarks: remarks, // Use new remarks if provided
       };
-  
+
       // Update the appointment status in Firebase
       await update(appointmentRef, updates);
-  
+
       // End measuring Firebase update latency
       const firebaseEnd = performance.now();
       metrics.firebaseLatency = Math.round(firebaseEnd - firebaseStart); // Round the value
-  
+
       // Start measuring local state update latency
       const stateUpdateStart = performance.now();
-  
+
       // Update the local state to reflect the new status
       setAppointments((prevAppointments) =>
         prevAppointments.map((item) =>
@@ -299,15 +313,17 @@ const TeacherAppointment = () => {
             : item
         )
       );
-  
+
       // End measuring local state update latency
       const stateUpdateEnd = performance.now();
-      metrics.stateUpdateLatency = Math.round(stateUpdateEnd - stateUpdateStart); // Round the value
-  
+      metrics.stateUpdateLatency = Math.round(
+        stateUpdateEnd - stateUpdateStart
+      ); // Round the value
+
       // Close the decline modal and reset the remark text
       closeDeclineModal();
       setRemarkText("");
-  
+
       // Show appropriate alerts based on the new status
       if (newStatus === "Confirmed") {
         Alert.alert("Consultation Accepted", "Consultation has been confirmed");
@@ -326,7 +342,7 @@ const TeacherAppointment = () => {
       // End measuring total latency
       const totalEnd = performance.now();
       metrics.totalLatency = Math.round(totalEnd - totalStart); // Round the value
-  
+
       // Log metrics to the console in the desired format
       console.log(
         `Appointment status change metrics:
@@ -339,9 +355,7 @@ const TeacherAppointment = () => {
   const EmptyState = () => (
     <View style={styles.emptyStateContainer}>
       <Icon name="calendar-blank" size={50} color="#ccc" />
-      <Text style={styles.emptyStateSubText}>
-        No records found
-      </Text>
+      <Text style={styles.emptyStateSubText}>No records found</Text>
     </View>
   );
   const AppointmentCard = ({ appointment }) => (
@@ -779,6 +793,20 @@ const TeacherAppointment = () => {
               >
                 {tab}
               </Text>
+
+              {/* Add counter badges for Pending and Upcoming tabs */}
+              {(tab === "Pending" || tab === "Upcoming") &&
+                getAppointmentCountByStatus(
+                  tab === "Pending" ? "Pending" : "Confirmed"
+                ) > 0 && (
+                  <View style={styles.counterBadge}>
+                    <Text style={styles.counterBadgeText}>
+                      {getAppointmentCountByStatus(
+                        tab === "Pending" ? "Pending" : "Confirmed"
+                      )}
+                    </Text>
+                  </View>
+                )}
             </TouchableOpacity>
           ))}
         </View>
@@ -837,23 +865,23 @@ const styles = StyleSheet.create({
   },
   emptyStateContainer: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
     padding: 20,
     marginTop: 100,
   },
   emptyStateText: {
     fontSize: 18,
-    color: '#666',
+    color: "#666",
     marginTop: 16,
-    fontFamily: 'outfit-medium',
+    fontFamily: "outfit-medium",
   },
   emptyStateSubText: {
     fontSize: 14,
-    color: '#999',
+    color: "#999",
     marginTop: 8,
-    textAlign: 'center',
-    fontFamily: 'outfit',
+    textAlign: "center",
+    fontFamily: "outfit",
   },
   headerTitle: {
     color: "#fff",
@@ -879,6 +907,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 15,
     borderRadius: 22,
     margin: 2,
+    position: "relative", // Add this to position the badge correctly
   },
   activeTab: {
     backgroundColor: Colors.PRIMARY,
@@ -893,6 +922,26 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 3,
+    position: "relative", // Add this to position the badge correctly
+  },
+  counterBadge: {
+    position: "absolute",
+    top: -6,
+    right: -2,
+    backgroundColor: "#FF3B30",
+    borderRadius: 10,
+    minWidth: 18,
+    height: 18,
+    justifyContent: "center",
+    alignItems: "center",
+    paddingHorizontal: 3,
+    zIndex: 1, // Ensure badge appears above other elements
+  },
+  counterBadgeText: {
+    color: "white",
+    fontSize: 10,
+    fontFamily: "outfit-bold",
+    textAlign: "center",
   },
   tabText: {
     color: "#666",

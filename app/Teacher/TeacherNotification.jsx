@@ -63,7 +63,7 @@ const NotificationItem = ({ appointment, student, onPress, onRead }) => {
         <Text style={styles.message}>{appointment.type} Appointment</Text>
         <Text style={styles.message}>Time: {appointment.time}</Text> */}
 
-        <Text style={styles.title}>{"New Consultations"}</Text>
+        <Text style={styles.title}>{"New Consultation"}</Text>
         <Text style={styles.message}>
           {student?.firstName || "Student"} {student?.lastName || "Student"} has
           requested a{" "}

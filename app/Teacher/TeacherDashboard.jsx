@@ -379,7 +379,8 @@ const TeacherDashboard = () => {
         </TouchableOpacity>
         <View style={styles.headerTextContainer}>
           <Text style={styles.greeting}>
-            Hi {teacherData ? `Prof. ${teacherData.firstName}` : "Loading..."}!
+            Hi,{" "}
+            {teacherData ? `Teacher ${teacherData.firstName}` : "Loading..."}!
           </Text>
           <Text style={styles.subGreeting}>{getGreeting()}</Text>
         </View>
